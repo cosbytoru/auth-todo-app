@@ -29,22 +29,18 @@ class User(UserMixin):
         self.username = username
         self.password_hash = password_hash
 
-
 @login_manager.user_loader
 def load_user(user_id):
     # (省略 - 以前のチュートリアルの完成版コードと同じ)
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute(
-        "SELECT id, username, password_hash FROM users WHERE id = %s", (user_id,)
-    )
+    cur.execute("SELECT id, username, password_hash FROM users WHERE id = %s", (user_id,))
     user_data = cur.fetchone()
     cur.close()
     conn.close()
     if user_data:
         return User(id=user_data[0], username=user_data[1], password_hash=user_data[2])
     return None
-
 
 # --- ルーティング ---
 @app.route('/')
@@ -55,17 +51,14 @@ def index():
     try:
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute(
-            "SELECT id, title, completed FROM tasks WHERE user_id = %s ORDER BY id",
-            (current_user.id,)
-        )
+        cur.execute("SELECT id, title, completed FROM tasks WHERE user_id = %s ORDER BY id", (current_user.id,))
         tasks = cur.fetchall()
     except (Exception, psycopg2.Error) as error:
         flash(f"タスクの読み込み中にエラー: {error}", "danger")
     finally:
-        if 'conn' in locals() and conn:
-            conn.close()
+        if 'conn' in locals() and conn: conn.close()
     return render_template('index.html', tasks=tasks)
+
 @app.route('/add', methods=['POST'])
 @login_required
 def add_task():
@@ -75,9 +68,7 @@ def add_task():
         try:
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute(
-                "INSERT INTO tasks (title, user_id) VALUES (%s, %s)",
-                (title, current_user.id))
+            cur.execute("INSERT INTO tasks (title, user_id) VALUES (%s, %s)", (title, current_user.id))
             conn.commit()
             cur.close()
             conn.close()
@@ -97,10 +88,7 @@ def complete_task(task_id):
     try:
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute(
-            "UPDATE tasks SET completed = TRUE WHERE id = %s AND user_id = %s",
-            (task_id, current_user.id)
-        )
+        cur.execute("UPDATE tasks SET completed = TRUE WHERE id = %s AND user_id = %s", (task_id, current_user.id))
         conn.commit()
         cur.close()
         conn.close()
@@ -119,10 +107,7 @@ def delete_task(task_id):
     try:
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute(
-            "DELETE FROM tasks WHERE id = %s AND user_id = %s",
-            (task_id, current_user.id)
-        )
+        cur.execute("DELETE FROM tasks WHERE id = %s AND user_id = %s", (task_id, current_user.id))
         conn.commit()
         cur.close()
         conn.close()
@@ -140,10 +125,7 @@ def reactivate_task(task_id):
     try:
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute(
-            "UPDATE tasks SET completed = FALSE WHERE id = %s AND user_id = %s",
-            (task_id, current_user.id)
-        )
+        cur.execute("UPDATE tasks SET completed = FALSE WHERE id = %s AND user_id = %s", (task_id, current_user.id))
         conn.commit()
         cur.close()
         conn.close()
@@ -166,10 +148,7 @@ def edit_task(task_id):
             try:
                 conn_post = get_connection()
                 cur_post = conn_post.cursor()
-                cur_post.execute(
-                    "UPDATE tasks SET title = %s WHERE id = %s AND user_id = %s",
-                    (new_title, task_id, current_user.id)
-                )
+                cur_post.execute("UPDATE tasks SET title = %s WHERE id = %s AND user_id = %s", (new_title, task_id, current_user.id))
                 conn_post.commit()
                 flash(f"タスクID {task_id} のタイトルを「{new_title}」に更新しました。", "success")
             except (Exception, psycopg2.Error) as error:
@@ -190,10 +169,7 @@ def edit_task(task_id):
     try:
         conn_get = get_connection()
         cur_get = conn_get.cursor()
-        cur_get.execute(
-            "SELECT id, title, completed FROM tasks WHERE id = %s AND user_id = %s",
-            (task_id, current_user.id)
-        )
+        cur_get.execute("SELECT id, title, completed FROM tasks WHERE id = %s AND user_id = %s", (task_id, current_user.id))
         task = cur_get.fetchone()
         if not task:
             flash(f"編集するタスクID {task_id} が見つかりません。", "warning")
@@ -210,12 +186,12 @@ def edit_task(task_id):
     return render_template('edit.html', task=task)
 
 
+
 # --- 認証ルート ---
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     # (省略 - 以前のチュートリアルの完成版コードと同じ)
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
+    if current_user.is_authenticated: return redirect(url_for('index'))
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -232,9 +208,7 @@ def signup():
             return redirect(url_for('signup'))
 
         hashed_password = generate_password_hash(password)
-        cur.execute(
-            "INSERT INTO users (username, password_hash) VALUES (%s, %s)",
-            (username, hashed_password))
+        cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, hashed_password))
         conn.commit()
         cur.close()
         conn.close()
@@ -243,12 +217,10 @@ def signup():
         return redirect(url_for('login'))
     return render_template('signup.html')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # (省略 - 以前のチュートリアルの完成版コードと同じ)
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
+    if current_user.is_authenticated: return redirect(url_for('index'))
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -271,7 +243,6 @@ def login():
 
     return render_template('login.html')
 
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -279,7 +250,6 @@ def logout():
     logout_user()
     flash("ログアウトしました。", "info")
     return redirect(url_for('login'))
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

@@ -16,3 +16,12 @@ FlaskとPostgreSQLで作成したWeb ToDoアプリを、Docker Composeで完全�
    ```bash
    git clone git@github.com:あなたのユーザー名/docker-todo-app.git
    cd docker-todo-app
+
+1. **ドッカ―立ち上げ後に、PostgreSQLセットアップ:**
+   ```bash
+   docker compose up --build
+
+　　上記とは別のターミナルで
+  ```bash
+   docker compose exec web python3 setup_db.py
+   

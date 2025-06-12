@@ -153,7 +153,8 @@ def edit_task(task_id):
             try:
                 conn_post = get_connection()
                 cur_post = conn_post.cursor()
-                cur_post.execute("UPDATE tasks SET title = %s WHERE id = %s AND user_id = %s", (new_title, task_id, current_user.id))
+                cur_post.execute("UPDATE tasks SET title = %s WHERE id = %s AND user_id = %s", 
+                                 (new_title, task_id, current_user.id))
                 conn_post.commit()
                 message = (
                     f"タスクID {task_id} のタイトルを"
@@ -178,7 +179,8 @@ def edit_task(task_id):
     try:
         conn_get = get_connection()
         cur_get = conn_get.cursor()
-        cur_get.execute("SELECT id, title, completed FROM tasks WHERE id = %s AND user_id = %s", (task_id, current_user.id))
+        cur_get.execute("SELECT id, title, completed FROM tasks WHERE id = %s AND user_id = %s",
+                         (task_id, current_user.id))
         task = cur_get.fetchone()
         if not task:
             message = (

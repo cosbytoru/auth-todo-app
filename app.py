@@ -155,11 +155,11 @@ def edit_task(task_id):
                 cur_post = conn_post.cursor()
                 cur_post.execute("UPDATE tasks SET title = %s WHERE id = %s AND user_id = %s", (new_title, task_id, current_user.id))
                 conn_post.commit()
-                  message = (
-                      f"タスクID {task_id} のタイトルを"
-                      f"「{new_title}」に更新しました。"
-                  )
-                  flash(message, "success")
+                message = (
+                    f"タスクID {task_id} のタイトルを"
+                    f"「{new_title}」に更新しました。"
+                )
+                flash(message, "success")
             except (Exception, psycopg2.Error) as error:
                 print(f"タスクID {task_id} の更新中にエラーが発生しました: {error}")
                 flash(f"タスクID {task_id} の更新中にエラーが発生しました。", "danger")

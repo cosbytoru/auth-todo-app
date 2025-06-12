@@ -41,7 +41,7 @@ def setup_database():
 
         # tasksテーブルにuser_idカラムを追加
         cur.execute("""
-            SELECT 1 FROM information_schema.columns 
+            SELECT 1 FROM information_schema.columns
             WHERE table_name='tasks' AND column_name='user_id';
         """)
         if cur.fetchone() is None:

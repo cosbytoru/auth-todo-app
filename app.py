@@ -155,8 +155,11 @@ def edit_task(task_id):
                 cur_post = conn_post.cursor()
                 cur_post.execute("UPDATE tasks SET title = %s WHERE id = %s AND user_id = %s", (new_title, task_id, current_user.id))
                 conn_post.commit()
-                flash(f"タスクID {task_id} のタイトルを「{new_title}」"
-                      "に更新しました。", "success")
+                  message = (
+                      f"タスクID {task_id} のタイトルを"
+                      f"「{new_title}」に更新しました。"
+                  )
+                  flash(message, "success")
             except (Exception, psycopg2.Error) as error:
                 print(f"タスクID {task_id} の更新中にエラーが発生しました: {error}")
                 flash(f"タスクID {task_id} の更新中にエラーが発生しました。", "danger")
@@ -178,7 +181,11 @@ def edit_task(task_id):
         cur_get.execute("SELECT id, title, completed FROM tasks WHERE id = %s AND user_id = %s", (task_id, current_user.id))
         task = cur_get.fetchone()
         if not task:
-            flash(f"編集するタスクID {task_id} が見つかりません。", "warning")
+            message = (
+                f"編集するタスクID {task_id} "
+                "が見つかりません。"
+            )
+            flash(message, "warning")
             return redirect(url_for('index'))
     except (Exception, psycopg2.Error) as error:
         print(f"タスクID {task_id} の読み込み中にエラーが発生しました: {error}")

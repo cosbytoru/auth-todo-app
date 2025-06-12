@@ -18,6 +18,7 @@ DB_NAME = "postgres"
 DB_USER = "postgres"
 DB_PASS = "mysecretpassword"
 
+
 def get_connection():
     return psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
 
@@ -28,6 +29,7 @@ class User(UserMixin):
         self.id = id
         self.username = username
         self.password_hash = password_hash
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -41,6 +43,7 @@ def load_user(user_id):
     if user_data:
         return User(id=user_data[0], username=user_data[1], password_hash=user_data[2])
     return None
+
 
 # --- ルーティング ---
 @app.route('/')
@@ -56,8 +59,10 @@ def index():
     except (Exception, psycopg2.Error) as error:
         flash(f"タスクの読み込み中にエラー: {error}", "danger")
     finally:
-        if 'conn' in locals() and conn: conn.close()
+        if 'conn' in locals() and conn:
+            conn.close()
     return render_template('index.html', tasks=tasks)
+
 
 @app.route('/add', methods=['POST'])
 @login_required
@@ -150,7 +155,8 @@ def edit_task(task_id):
                 cur_post = conn_post.cursor()
                 cur_post.execute("UPDATE tasks SET title = %s WHERE id = %s AND user_id = %s", (new_title, task_id, current_user.id))
                 conn_post.commit()
-                flash(f"タスクID {task_id} のタイトルを「{new_title}」に更新しました。", "success")
+                flash(f"タスクID {task_id} のタイトルを「{new_title}」"
+                      "に更新しました。", "success")
             except (Exception, psycopg2.Error) as error:
                 print(f"タスクID {task_id} の更新中にエラーが発生しました: {error}")
                 flash(f"タスクID {task_id} の更新中にエラーが発生しました。", "danger")
@@ -186,12 +192,12 @@ def edit_task(task_id):
     return render_template('edit.html', task=task)
 
 
-
 # --- 認証ルート ---
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     # (省略 - 以前のチュートリアルの完成版コードと同じ)
-    if current_user.is_authenticated: return redirect(url_for('index'))
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -217,10 +223,12 @@ def signup():
         return redirect(url_for('login'))
     return render_template('signup.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # (省略 - 以前のチュートリアルの完成版コードと同じ)
-    if current_user.is_authenticated: return redirect(url_for('index'))
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -243,6 +251,7 @@ def login():
 
     return render_template('login.html')
 
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -250,6 +259,7 @@ def logout():
     logout_user()
     flash("ログアウトしました。", "info")
     return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

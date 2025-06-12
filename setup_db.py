@@ -27,7 +27,7 @@ def setup_database():
         );
         """)
         print("テーブル 'users' の準備ができました。")
-        
+
         # tasksテーブルを先に作成（これがないとALTER TABLEでエラーになるため）
         cur.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
